@@ -1,0 +1,42 @@
+/* ----- SCROLLBAR BASE ----- */
+*::-webkit-scrollbar {
+    width: 16px;
+    background: transparent;
+    /* transparent gutter */
+}
+
+/* ----- TRACK (area behind the thumb) ----- */
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track:hover {
+    background: transparent;
+    /* fully transparent track */
+}
+
+/* ----- THUMB (the draggable bar) ----- */
+*::-webkit-scrollbar-thumb {
+    background: #babac0;
+    border-radius: 16px;
+    border: 5px solid transparent;
+    /* keep spacing but show page through */
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a5;
+    border: 4px solid transparent;
+}
+
+/* ----- ARROW BUTTONS (hidden) ----- */
+*::-webkit-scrollbar-button {
+    display: none;
+}
+
+/* OPTIONAL: standard scrollbar width for Firefox */
+* {
+    scrollbar-width: thin;
+    /* removes grey track in Firefox */
+    scrollbar-color: #babac0 transparent;
+}
+
+main {
+    max-width: 1400px !important;
+}

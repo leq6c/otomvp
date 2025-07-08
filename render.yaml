@@ -1,0 +1,51 @@
+# Exported from Render on 2025-06-28T06:08:55Z
+databases:
+- name: db
+  databaseName: db_42uo
+  user: db_42uo_user
+  plan: free
+  region: oregon
+  ipAllowList:
+  - source: 0.0.0.0/0
+    description: everywhere
+  postgresMajorVersion: "16"
+services:
+- type: web
+  name: otomvp-api
+  runtime: python
+  repo: https://github.com/leq6c/otomvp
+  plan: starter
+  envVars:
+  - fromGroup: mvp
+  region: oregon
+  buildCommand: uv sync
+  startCommand: uv run main.py
+  healthCheckPath: /health
+  autoDeployTrigger: "off"
+  rootDir: backend
+- type: worker
+  name: otomvp-processing
+  runtime: python
+  repo: https://github.com/leq6c/otomvp
+  plan: standard
+  envVars:
+  - fromGroup: mvp
+  region: oregon
+  buildCommand: uv sync
+  startCommand: uv run prefect_serve.py
+  autoDeployTrigger: "off"
+  rootDir: backend
+- type: web
+  name: otomvp
+  runtime: node
+  repo: https://github.com/leq6c/otomvp
+  plan: starter
+  envVars:
+  - key: NEXT_PUBLIC_API_URL
+    sync: false
+  region: oregon
+  buildCommand: npm i && npm run build
+  startCommand: npm run start
+  autoDeployTrigger: commit
+  rootDir: frontend
+version: "1"

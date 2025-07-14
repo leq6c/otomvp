@@ -41,6 +41,7 @@ class VertexAI:
             credentials=self.credentials,
         )
         self.model = GenerativeModel("gemini-2.5-flash")
+        self.model_large = GenerativeModel("gemini-2.5-pro")
         self.embed = TextEmbeddingModel.from_pretrained(
             "text-multilingual-embedding-002"
         )

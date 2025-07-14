@@ -3,6 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import Path, Depends
 from oto.infra.database import create_db_session
 from oto.domain.conversation import Conversation
+from oto.domain.clip import Clip
 from oto.infra.auth import get_auth_service
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -32,6 +33,19 @@ async def require_conversation(
         if conversation.user_id != user_id:
             raise HTTPException(status_code=403, detail="Forbidden")
         return conversation
+
+
+async def require_clip(
+    clip_id: str = Path(..., alias="clip_id"),
+    user_id: str = Depends(require_user_id),
+) -> Clip:
+    with create_db_session() as session:
+        clip = session.get(Clip, clip_id)
+        if not clip:
+            raise HTTPException(status_code=404, detail="Clip not found")
+        if clip.user_id != user_id:
+            raise HTTPException(status_code=403, detail="Forbidden")
+        return clip
 
 
 def verify_token(token: str, user_id: str) -> bool:

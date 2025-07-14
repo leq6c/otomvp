@@ -10,6 +10,7 @@ from .analysis import (
     mark_as_failed,
     edit_profile,
 )
+from oto.tasks.content.create_clip_task import create_clip_task
 from .transcribe import transcribe_conversation
 from .point import give_points_to_user
 from .extract import extract_topic
@@ -23,6 +24,9 @@ def process_conversation_flow(conversation_id: str):
         log.info("▶️ Processing conversation %s", conversation_id)
 
         check_conversation_limit_exceeded()
+
+        # start create clip
+        clip_task = create_clip_task.submit(conversation_id)
 
         # 1. Transcribe conversation
         transcribe_conversation.submit(conversation_id).result()
@@ -66,6 +70,10 @@ def process_conversation_flow(conversation_id: str):
         except Exception as e:
             log.exception("❌ Error extracting topic but it's not critical", exc_info=e)
 
+        try:
+            clip_task.result()
+        except Exception as e:
+            log.exception("❌ Error creating clip but it's not critical", exc_info=e)
     except Exception:
         log.exception("❌ Error processing conversation")
         mark_as_failed.submit(conversation_id)

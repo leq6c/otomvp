@@ -121,3 +121,38 @@ export type FullTranscript = {
   updated_at: string;
   captions: TranscriptSegment[];
 };
+
+/**
+ * Represents a clip caption from the API
+ */
+export type ClipCaption = {
+  timecode_start: string;
+  timecode_end: string;
+  speaker: string;
+  caption: string;
+};
+
+/**
+ * Represents a clip from the API
+ */
+export type Clip = {
+  id: string;
+  conversation_id: string;
+  created_at: string;
+  updated_at: string;
+  file_name: string;
+  mime_type: string;
+  title: string;
+  description: string;
+  comment: string;
+  captions: ClipCaption[];
+};
+
+/**
+ * Represents the clips list response from API
+ */
+export type ClipsResponse = {
+  clips: Clip[];
+  total: number;
+  conversation_id?: string;
+};

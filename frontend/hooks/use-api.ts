@@ -123,6 +123,7 @@ export function useProfile() {
 export function useConversations() {
   const listApi = useApi();
   const getApi = useApi();
+  const getJobApi = useApi();
 
   const getConversations = useCallback(async () => {
     return await listApi.execute(() => apiService.getConversations());
@@ -137,15 +138,28 @@ export function useConversations() {
     [getApi.execute]
   );
 
+  const getConversationJob = useCallback(
+    async (conversationId: string) => {
+      return await getJobApi.execute(() =>
+        apiService.getConversationJob(conversationId)
+      );
+    },
+    [getJobApi.execute]
+  );
+
   return {
     getConversations,
     getConversation,
+    getConversationJob,
     conversations: listApi.data,
     conversationsLoading: listApi.loading,
     conversationsError: listApi.error,
     conversation: getApi.data,
     conversationLoading: getApi.loading,
     conversationError: getApi.error,
+    conversationJob: getJobApi.data,
+    conversationJobLoading: getJobApi.loading,
+    conversationJobError: getJobApi.error,
   };
 }
 

@@ -50,6 +50,109 @@ Check API health status.
 
 ---
 
+### Clip Management
+
+#### GET /clip/list
+
+Get list of user's clips, optionally filtered by conversation.
+
+**Authentication:** Required
+
+**Query Parameters:**
+
+- `conversation_id` (optional): Filter clips by conversation ID
+- `limit` (optional): Maximum number of clips to return (default: 30, max: 100)
+
+**Response:**
+
+```json
+{
+  "clips": [
+    {
+      "id": "clip-uuid-123",
+      "conversation_id": "conv-uuid-123",
+      "created_at": "2024-01-01T00:00:00",
+      "updated_at": "2024-01-01T00:00:00",
+      "file_name": "clip_segment.mp3",
+      "mime_type": "audio/mpeg",
+      "title": "Key Discussion Point",
+      "description": "Important decision made during the meeting",
+      "comment": "This was a crucial moment in the conversation",
+      "captions": [
+        {
+          "timecode_start": "00:05:30",
+          "timecode_end": "00:06:15",
+          "speaker": "Speaker 1",
+          "caption": "We need to move forward with this proposal"
+        }
+      ]
+    }
+  ],
+  "total": 1,
+  "conversation_id": "conv-uuid-123"
+}
+```
+
+#### GET /clip/{clip_id}
+
+Get specific clip details.
+
+**Authentication:** Required
+**Authorization:** User must own the clip
+
+**Response:**
+
+```json
+{
+  "id": "clip-uuid-123",
+  "user_id": "user123",
+  "conversation_id": "conv-uuid-123",
+  "created_at": "2024-01-01T00:00:00",
+  "updated_at": "2024-01-01T00:00:00",
+  "file_name": "clip_segment.mp3",
+  "mime_type": "audio/mpeg",
+  "title": "Key Discussion Point",
+  "description": "Important decision made during the meeting",
+  "comment": "This was a crucial moment in the conversation",
+  "captions": [
+    {
+      "timecode_start": "00:05:30",
+      "timecode_end": "00:06:15",
+      "speaker": "Speaker 1",
+      "caption": "We need to move forward with this proposal"
+    }
+  ]
+}
+```
+
+#### GET /clip/{clip_id}/audio
+
+Get signed URL for clip audio file.
+
+**Authentication:** Required
+**Authorization:** User must own the clip
+
+**Response:**
+
+Returns a signed URL as plain text for accessing the clip's audio file.
+
+**Content-Type:** `text/plain`
+
+#### GET /clip/{clip_id}/comment-audio
+
+Get signed URL for clip comment audio file.
+
+**Authentication:** Required
+**Authorization:** User must own the clip
+
+**Response:**
+
+Returns a signed URL as plain text for accessing the clip's comment audio file.
+
+**Content-Type:** `text/plain`
+
+---
+
 ### User Management
 
 #### POST /user/create
@@ -162,6 +265,11 @@ Get list of user's conversations (last 30, ordered by creation date).
 
 **Authentication:** Required
 
+**Query Parameters:**
+
+- `start` (optional): Filter conversations created after this datetime
+- `end` (optional): Filter conversations created before this datetime
+
 **Response:**
 
 ```json
@@ -214,6 +322,66 @@ Get specific conversation details.
   "time": "Morning",
   "location": "New York",
   "points": 150
+}
+```
+
+#### PATCH /conversation/{conversation_id}
+
+Update conversation metadata.
+
+**Authentication:** Required
+**Authorization:** User must own the conversation
+
+**Request Body:**
+
+```json
+{
+  "place": "Conference Room A",
+  "location": "San Francisco"
+}
+```
+
+**Response:**
+
+```json
+{
+  "id": "conv-uuid-123",
+  "user_id": "user123",
+  "status": "completed",
+  "inner_status": "",
+  "created_at": "2024-01-01T00:00:00",
+  "updated_at": "2024-01-01T00:00:00",
+  "file_name": "meeting.mp3",
+  "file_path": "uploads/user123/meeting.mp3",
+  "mime_type": "audio/mpeg",
+  "available_duration": "00:15:30",
+  "language": "English",
+  "situation": "Business meeting",
+  "place": "Conference Room A",
+  "time": "Morning",
+  "location": "San Francisco",
+  "points": 150
+}
+```
+
+#### GET /conversation/{conversation_id}/job
+
+Get conversation processing job status.
+
+**Authentication:** Required
+**Authorization:** User must own the conversation
+
+**Response:**
+
+Returns the current status of the background processing job for the conversation.
+
+```json
+{
+  "flow_run_id": "flow-uuid-456",
+  "status": "completed",
+  "state_type": "COMPLETED",
+  "start_time": "2024-01-01T00:00:00",
+  "end_time": "2024-01-01T00:15:00"
 }
 ```
 
@@ -506,11 +674,51 @@ Get specific microtrend by ID.
 }
 ```
 
+### Clip
+
+```json
+{
+  "id": "string",
+  "user_id": "string",
+  "conversation_id": "string",
+  "created_at": "datetime",
+  "updated_at": "datetime",
+  "file_name": "string",
+  "file_path": "string",
+  "mime_type": "string",
+  "comment_file_name": "string",
+  "comment_file_path": "string",
+  "comment_mime_type": "string",
+  "title": "string",
+  "description": "string",
+  "comment": "string",
+  "captions": [
+    {
+      "timecode_start": "string",
+      "timecode_end": "string",
+      "speaker": "string",
+      "caption": "string"
+    }
+  ]
+}
+```
+
 ### Caption
 
 ```json
 {
   "timecode": "string",
+  "speaker": "string",
+  "caption": "string"
+}
+```
+
+### ClipCaption
+
+```json
+{
+  "timecode_start": "string",
+  "timecode_end": "string",
   "speaker": "string",
   "caption": "string"
 }
@@ -655,6 +863,12 @@ Get specific microtrend by ID.
 ```json
 {
   "detail": "Analysis not found"
+}
+```
+
+```json
+{
+  "detail": "Clip not found"
 }
 ```
 

@@ -26,6 +26,12 @@ export interface ConversationResponse {
   points: number;
 }
 
+export interface ConversationJobResponse {
+  status: string;
+  started_at: string;
+  estimated_run_time_in_seconds: number;
+}
+
 export interface UserProfile {
   id: string;
   created_at: string;
@@ -123,6 +129,30 @@ export interface MicroTrendResponse {
   overall_negative_sentiment: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface ClipResponse {
+  id: string;
+  conversation_id: string;
+  created_at: string;
+  updated_at: string;
+  file_name: string;
+  mime_type: string;
+  title: string;
+  description: string;
+  comment: string;
+  captions: Array<{
+    timecode_start: string;
+    timecode_end: string;
+    speaker: string;
+    caption: string;
+  }>;
+}
+
+export interface ClipsListResponse {
+  clips: ClipResponse[];
+  total: number;
+  conversation_id?: string;
 }
 
 class ApiService {
@@ -372,6 +402,29 @@ class ApiService {
     }
   }
 
+  async getConversationJob(
+    conversationId: string
+  ): Promise<ApiResponse<ConversationJobResponse>> {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/conversation/${conversationId}/job`,
+        {
+          method: "GET",
+          headers: await this.getHeaders(),
+        }
+      );
+      return this.handleResponse<ConversationJobResponse>(response);
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to get conversation job",
+      };
+    }
+  }
+
   // Analysis APIs
   async getAnalysis(
     conversationId: string
@@ -506,6 +559,62 @@ class ApiService {
           error instanceof Error ? error.message : "Failed to get microtrend",
       };
     }
+  }
+
+  // Clip APIs
+  async getClips(
+    conversationId?: string
+  ): Promise<ApiResponse<ClipsListResponse>> {
+    try {
+      const url = conversationId
+        ? `${this.baseUrl}/clip/list?conversation_id=${conversationId}`
+        : `${this.baseUrl}/clip/list`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: await this.getHeaders(),
+      });
+      return this.handleResponse<ClipsListResponse>(response);
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to get clips",
+      };
+    }
+  }
+
+  async getClip(clipId: string): Promise<ApiResponse<ClipResponse>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/clip/${clipId}`, {
+        method: "GET",
+        headers: await this.getHeaders(),
+      });
+      return this.handleResponse<ClipResponse>(response);
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to get clip",
+      };
+    }
+  }
+
+  async getClipAudioUrl(clipId: string): Promise<string> {
+    const response = await fetch(`${this.baseUrl}/clip/${clipId}/audio`, {
+      method: "GET",
+      headers: await this.getHeaders(),
+    });
+    return response.text();
+  }
+
+  async getClipCommentAudioUrl(clipId: string): Promise<string> {
+    const response = await fetch(
+      `${this.baseUrl}/clip/${clipId}/comment-audio`,
+      {
+        method: "GET",
+        headers: await this.getHeaders(),
+      }
+    );
+    return response.text();
   }
 
   // Health check

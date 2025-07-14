@@ -7,6 +7,7 @@ from oto.routers.health import router as health_router
 from oto.routers.transcript import router as transcript_router
 from oto.routers.analysis import router as analysis_router
 from oto.routers.trend import router as trend_router
+from oto.routers.clip import router as clip_router
 from fastapi.middleware.cors import CORSMiddleware
 
 create_db_and_tables()
@@ -28,3 +29,4 @@ app.include_router(health_router)
 app.include_router(transcript_router)
 app.include_router(analysis_router)
 app.include_router(trend_router)
+app.include_router(clip_router)

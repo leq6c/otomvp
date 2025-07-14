@@ -41,6 +41,17 @@ class GoogleCloudStorage:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
+    def upload_bytes(
+        self, bytes: bytes, folder_path: str, ext: str, mime_type: str
+    ) -> str:
+        try:
+            blob_name = self._generate_unique_filename(ext, folder_path)
+            blob = self.bucket.blob(blob_name)
+            blob.upload_from_string(bytes, content_type=mime_type)
+            return blob_name
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
     def delete_file(self, filename: str):
         try:
             blob = self.bucket.blob(filename)
@@ -53,7 +64,7 @@ class GoogleCloudStorage:
 
     def generate_signed_url(self, filename: str) -> str:
         try:
-            expiration_minutes = 10
+            expiration_minutes = 60
             method = "GET"
             blob = self.bucket.blob(filename)
             if not blob.exists():

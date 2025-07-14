@@ -1,6 +1,8 @@
 from sqlmodel import SQLModel, create_engine, Session
 from typing import Generator
 from oto.environment import get_settings
+from oto.domain.clip import Clip
+from oto.domain.job import ConversationJob
 
 DATABASE_URL = get_settings().database_url
 

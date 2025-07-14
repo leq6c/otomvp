@@ -8,6 +8,7 @@ import AiSummary from "./ai-summary"
 import PerformanceInsights from "./performance-insights"
 import ConversationBreakdown from "./conversation-breakdown"
 import TranscriptList from "./transcript-list"
+import ClipsSection from "./clips-section"
 
 type AnalysisReportProps = {
   data: AnalysisData
@@ -32,6 +33,7 @@ export default function AnalysisReport({ data, conversationId, onContribute }: A
   return (
     <>
       <div className="w-full max-w-3xl mx-auto">
+        <ClipsSection conversationId={conversationId} />
         <AiSummary summary={data.aiSummary} />
         <PerformanceInsights data={data} />
         <ConversationBreakdown data={data} />

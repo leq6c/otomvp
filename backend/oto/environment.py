@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     privy_secret: str
     database_url: str
     maximum_conversations_limit: int
+    sieve_api_key: str
+    openai_api_key: str
 
 
 @lru_cache

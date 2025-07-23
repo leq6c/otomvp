@@ -42,6 +42,12 @@ class AudioEnhancerService:
                 raise Exception(f"Unknown job status: {status}")
         raise Exception(f"Job timed out: {job_id}")
 
+    def convert_to_opus(self, bytes: bytes) -> bytes:
+        seg: AudioSegment = AudioSegment.from_file(BytesIO(bytes))
+        bytes_io = BytesIO()
+        seg.export(bytes_io, format="opus")
+        return bytes_io.getvalue()
+
     def _create_job(self, signed_url: str) -> str:
         response = requests.post(
             "https://mango.sievedata.com/v2/push",

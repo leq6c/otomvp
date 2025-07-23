@@ -155,6 +155,21 @@ export interface ClipsListResponse {
   conversation_id?: string;
 }
 
+export interface ClaimRequest {
+  tx_base64: string;
+}
+
+export interface ClaimResponse {
+  success: boolean;
+  signature?: string;
+  error?: string;
+}
+
+export interface ClaimableAmountResponse {
+  amount: number;
+  display_amount: number;
+}
+
 class ApiService {
   private baseUrl: string;
   private userId: string;
@@ -220,6 +235,40 @@ class ApiService {
         success: false,
         error:
           error instanceof Error ? error.message : "Unknown error occurred",
+      };
+    }
+  }
+
+  async getClaimableAmount(): Promise<ApiResponse<ClaimableAmountResponse>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/point/claimable_amount`, {
+        method: "GET",
+        headers: await this.getHeaders(),
+      });
+      return this.handleResponse<ClaimableAmountResponse>(response);
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to get claimable amount",
+      };
+    }
+  }
+
+  async claim(tx_base64: string): Promise<ApiResponse<ClaimResponse>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/point/claim`, {
+        method: "POST",
+        headers: await this.getHeaders(),
+        body: JSON.stringify({ tx_base64 }),
+      });
+      return this.handleResponse<ClaimResponse>(response);
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to claim",
       };
     }
   }

@@ -20,4 +20,5 @@ if __name__ == "__main__":
         tre_deploy,
         ex_deploy,
         ex_all_deploy,
+        limit=1,
     )

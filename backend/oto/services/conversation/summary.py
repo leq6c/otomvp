@@ -32,7 +32,7 @@ class ConversationSummaryService:
             ),
         )
 
-        self.vertexai.notify_response(response)
+        self.vertexai.notify_response(response, self.vertexai.model)
 
         summary = ConversationSummary.model_validate_json(response.text)
         return summary

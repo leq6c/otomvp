@@ -17,7 +17,11 @@ from .extract import extract_topic
 from oto.services.safety import check_conversation_limit_exceeded
 
 
-@flow(name="process_conversation", task_runner=ConcurrentTaskRunner())
+@flow(
+    name="process_conversation",
+    task_runner=ConcurrentTaskRunner(),
+    timeout_seconds=60 * 20,  # 20 minutes
+)
 def process_conversation_flow(conversation_id: str):
     log = get_run_logger()
     try:

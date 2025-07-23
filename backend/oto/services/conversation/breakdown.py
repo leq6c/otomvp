@@ -81,7 +81,7 @@ class ConversationBreakdownService:
             ),
         )
 
-        self.vertexai.notify_response(response)
+        self.vertexai.notify_response(response, self.vertexai.model)
 
         breakdown = ConversationBreakdown.model_validate_json(response.text)
         return breakdown

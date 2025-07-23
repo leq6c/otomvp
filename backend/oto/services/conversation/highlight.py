@@ -47,7 +47,7 @@ class ConversationHighlightService:
             ),
         )
 
-        self.vertexai.notify_response(response)
+        self.vertexai.notify_response(response, self.vertexai.model)
 
         highlights = ConversationHighlights.model_validate_json(response.text)
         return highlights

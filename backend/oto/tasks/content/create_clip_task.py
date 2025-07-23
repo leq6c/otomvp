@@ -69,13 +69,24 @@ def create_clip_task(conversation_id: str) -> None:
             # enhance audio
             signed_url = storage.generate_signed_url(path)
             audio_enhancer_service = get_audio_enhancer_service()
-            bytes = audio_enhancer_service.enhance_audio(signed_url, "opus")
-            enhanced_path = storage.upload_bytes(
-                bytes,
-                f"clips/{conversation.user_id}",
-                "opus",
-                "audio/opus",
-            )
+            try:
+                bytes = audio_enhancer_service.enhance_audio(signed_url, "opus")
+                enhanced_path = storage.upload_bytes(
+                    bytes,
+                    f"clips/{conversation.user_id}",
+                    "opus",
+                    "audio/opus",
+                )
+            except Exception as e:
+                log.error("▶️ Enhancing audio failed: %s", e)
+                log.info("▶️ Enhancing audio failed, converting to opus instead")
+                bytes = audio_enhancer_service.convert_to_opus(target_data.audio)
+                enhanced_path = storage.upload_bytes(
+                    bytes,
+                    f"clips/{conversation.user_id}",
+                    "opus",
+                    "audio/opus",
+                )
             text_to_speech_service = get_text_to_speech_service()
             tts_bytes = text_to_speech_service.generate(target_data.comment, "opus")
             tts_path = storage.upload_bytes(

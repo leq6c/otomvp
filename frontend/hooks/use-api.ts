@@ -92,6 +92,28 @@ export function useUpload() {
   };
 }
 
+export function useClaim() {
+  const { execute, loading, error } = useApi();
+
+  const claim = useCallback(
+    async (tx_base64: string) => {
+      return await execute(() => apiService.claim(tx_base64));
+    },
+    [execute]
+  );
+
+  const getClaimableAmount = useCallback(async () => {
+    return await execute(() => apiService.getClaimableAmount());
+  }, [execute]);
+
+  return {
+    claim,
+    getClaimableAmount,
+    loading,
+    error,
+  };
+}
+
 export function useProfile() {
   const getProfileApi = useApi();
   const updateProfileApi = useApi();

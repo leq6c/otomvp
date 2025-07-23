@@ -11,6 +11,8 @@ import CaptionDisplay from "./caption-display"
 import AudioVisualizer from "./audio-visualizer"
 import ProgressBar from "./progress-bar";
 import type { Clip } from "@/types"
+import { OggOpusDecoder } from 'ogg-opus-decoder';
+import { audioBufferToWav, isOpusSupported, opusToWavUrl } from "@/lib/wavutil"
 
 interface AudioPlayerProps {
   clip: Clip
@@ -27,6 +29,11 @@ export default function AudioPlayer({ clip, audioSrc, commentAudioSrc, useCommen
   const [commentTextOpacity, setCommentTextOpacity] = useState(0);
   const [isLoadingAudio, setIsLoadingAudio] = useState(true);
   const [loadedAudioCount, setLoadedAudioCount] = useState(0);
+  const [playingAudioSrc, setPlayingAudioSrc] = useState(audioSrc);
+  const [playingCommentAudioSrc, setPlayingCommentAudioSrc] = useState(commentAudioSrc);
+  const [playingBackgroundMusicSrc, setPlayingBackgroundMusicSrc] = useState("/sound/insp.mp3");
+  const [showStillNotPlaying, setShowStillNotPlaying] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
   // Audio player state and controls
   const { audioRef, state, actions, eventHandlers } = useAudioPlayer()
@@ -76,9 +83,6 @@ export default function AudioPlayer({ clip, audioSrc, commentAudioSrc, useCommen
       return;
     }
     
-    // Initialize audio context and start playback
-    await delay(100);
-
     const start = async() =>{
         setIsPlayingCommentAudio(false);
         if (useBackgroundMusic && backgroundMusicAudioRef.current) {
@@ -88,7 +92,6 @@ export default function AudioPlayer({ clip, audioSrc, commentAudioSrc, useCommen
         }
         if (audioRef.current) {
             audioRef.current.playbackRate = 1.2;
-            await delay(100);
             await spectrumState.actions.initializeAnalyzer()
             await spectrumState.actions.resumeContext()
             await actions.play()
@@ -134,6 +137,59 @@ export default function AudioPlayer({ clip, audioSrc, commentAudioSrc, useCommen
     }
   }, [state.hasPlayed])
 
+  useEffect(() => {
+    isOpusSupported().then(async (supported) => {
+      if (!supported) {
+        let loaded = 0;
+        const wavAudioSrc = await opusToWavUrl(audioSrc);
+        setPlayingAudioSrc(wavAudioSrc);
+        audioRef.current!.src = wavAudioSrc;
+        loaded++;
+        setLoadedAudioCount(loaded);
+
+        if (useCommentAudio) {
+          const wavCommentAudioSrc = await opusToWavUrl(commentAudioSrc);
+          setPlayingCommentAudioSrc(wavCommentAudioSrc);
+          commentAudioRef.current!.src = wavCommentAudioSrc;
+          loaded++;
+          setLoadedAudioCount(loaded);
+        }
+
+        if (useBackgroundMusic) {
+          const mp3BackgroundMusicData = await (await fetch(playingBackgroundMusicSrc)).blob();
+          const mp3Url = URL.createObjectURL(mp3BackgroundMusicData);
+          setPlayingBackgroundMusicSrc(mp3Url);
+          backgroundMusicAudioRef.current!.src = mp3Url;
+          loaded++;
+          setLoadedAudioCount(loaded);
+        }
+
+        await delay(300);
+
+        setIsLoadingAudio(false);
+      }
+    });
+  }, []);
+
+  /*
+  useEffect(() => {
+    setTimeout(() => {
+      if (!isAudioPlaying) {
+        setShowStillNotPlaying(true);
+      }
+    }, 5000);
+  }, []);*/
+
+  const forceStart = () => {
+    setIsLoadingAudio(false);
+    openPlayer();
+  }
+
+  const anyOfAudioStarted = () => {
+    setShowStillNotPlaying(false);
+    setIsAudioPlaying(true);
+  }
+
   return (
     <>
       <FullscreenModal isOpen={isModalOpen} onClose={closePlayer}>
@@ -145,6 +201,17 @@ export default function AudioPlayer({ clip, audioSrc, commentAudioSrc, useCommen
               <p className="text-white text-sm font-light">
                 Loading audio files... ({loadedAudioCount}/{getTotalAudioFiles()})
               </p>
+            </div>
+          </div>
+        )}
+
+        {showStillNotPlaying && (
+          <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
+            <div className="flex flex-col items-center space-y-4 mt-40">
+              {showStillNotPlaying && <div className="flex flex-col items-center mt-4">
+                <p className="text-gray-900 text-sm font-light mb-1">Still not playing?</p>
+                <Button onClick={forceStart} className="pointer-events-auto"><Play className="w-4 h-4 mr-2" />Start</Button>
+              </div>}
             </div>
           </div>
         )}
@@ -189,7 +256,7 @@ export default function AudioPlayer({ clip, audioSrc, commentAudioSrc, useCommen
         onError={eventHandlers.handleError}
         onCanPlayThrough={handleAudioLoaded}
         >
-          <source src={audioSrc}/>
+          <source src={playingAudioSrc}/>
           Your browser does not support the audio element.
         </audio>
 
@@ -201,7 +268,7 @@ export default function AudioPlayer({ clip, audioSrc, commentAudioSrc, useCommen
             preload="auto"
             onCanPlayThrough={handleAudioLoaded}
           >
-            <source src={commentAudioSrc} />
+            <source src={playingCommentAudioSrc} />
             Your browser does not support the audio element.
           </audio>
         )}
@@ -214,7 +281,7 @@ export default function AudioPlayer({ clip, audioSrc, commentAudioSrc, useCommen
             preload="auto"
             onCanPlayThrough={handleAudioLoaded}
           >
-            <source src="/sound/inspirational_light.ogg"/>
+            <source src={playingBackgroundMusicSrc}/>
             Your browser does not support the audio element.
           </audio>
         )}

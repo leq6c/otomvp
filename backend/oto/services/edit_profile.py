@@ -54,7 +54,7 @@ class EditProfileService:
             ),
         )
 
-        self.vertexai.notify_response(response)
+        self.vertexai.notify_response(response, self.vertexai.model)
 
         new_profile = UpdateUser.model_validate_json(response.text)
         return new_profile

@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     maximum_conversations_limit: int
     sieve_api_key: str
     openai_api_key: str
+    solana_keypair: str
+    solana_rpc_url: str
 
 
 @lru_cache

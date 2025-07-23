@@ -536,6 +536,63 @@ Get user's point transaction history (ordered by creation date, newest first).
 ]
 ```
 
+#### GET /point/claimable_amount
+
+Get the amount of points that can be claimed as on-chain tokens.
+
+**Authentication:** Required
+
+**Response:**
+
+```json
+{
+  "amount": 1500000000000,
+  "display_amount": 1500
+}
+```
+
+**Response Fields:**
+
+- `amount`: The claimable amount in the smallest unit (with 9 decimals)
+- `display_amount`: The user-friendly display amount (actual points)
+
+#### POST /point/claim
+
+Claim points by converting them to on-chain tokens.
+
+**Authentication:** Required
+
+**Request Body:**
+
+```json
+{
+  "tx_base64": "base64-encoded-transaction-data"
+}
+```
+
+**Response:**
+
+```json
+{
+  "signature": "transaction-signature-hash",
+  "success": true
+}
+```
+
+**Error Responses:**
+
+```json
+{
+  "detail": "Insufficient points"
+}
+```
+
+**Notes:**
+
+- Points are converted at a rate of 1 point = 10^9 smallest units
+- The transaction will deduct the claimed amount from the user's point balance
+- A negative point transaction record will be created for the claim
+
 ---
 
 ### Trends
@@ -773,6 +830,14 @@ Get specific microtrend by ID.
       "importance_score": "float"
     }
   ]
+}
+```
+
+### ClaimRequest
+
+```json
+{
+  "tx_base64": "string"
 }
 ```
 

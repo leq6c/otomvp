@@ -1,3 +1,4 @@
+import json
 import vertexai
 from vertexai.generative_models import GenerativeModel, GenerationResponse
 from vertexai.language_models import TextEmbeddingModel, TextEmbeddingInput
@@ -46,9 +47,10 @@ class VertexAI:
             "text-multilingual-embedding-002"
         )
 
-    def notify_response(self, response: GenerationResponse):
+    def notify_response(self, response: GenerationResponse, model: GenerativeModel):
         print(
             {
+                "model": model._model_name,
                 "prompt_tokens": response.usage_metadata.prompt_token_count,
                 "completion_tokens": response.usage_metadata.candidates_token_count,
                 "thoughts_tokens": response.usage_metadata.thoughts_token_count,

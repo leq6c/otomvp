@@ -49,7 +49,7 @@ class ConversationInsightService:
             ),
         )
 
-        self.vertexai.notify_response(response)
+        self.vertexai.notify_response(response, self.vertexai.model)
 
         insights = ConversationInsight.model_validate_json(response.text)
         return insights

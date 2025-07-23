@@ -77,6 +77,9 @@ class ClipGeneratorService:
             ),
             safety_settings=self.safety_settings,
         )
+
+        self.vertexai.notify_response(response, self.vertexai.model_large)
+
         return ClipCaptions.model_validate_json(response.text)
 
     def _prompt_pretty(self) -> str:
@@ -100,6 +103,8 @@ class ClipGeneratorService:
             safety_settings=self.safety_settings,
         )
 
+        self.vertexai.notify_response(response, self.vertexai.model_large)
+
         messages.append(self._prompt_2())
 
         print("Stage 2/3: refining...")
@@ -108,6 +113,8 @@ class ClipGeneratorService:
             generation_config=self.generation_config,
             safety_settings=self.safety_settings,
         )
+
+        self.vertexai.notify_response(response, self.vertexai.model_large)
 
         messages = [
             self._prompt_3(),
@@ -153,6 +160,9 @@ class ClipGeneratorService:
             ),
             safety_settings=self.safety_settings,
         )
+
+        self.vertexai.notify_response(response, self.vertexai.model_large)
+
         return ClipDatas.model_validate_json(response.text)
 
     def _prompt(self) -> str:
@@ -179,4 +189,6 @@ class ClipGeneratorService:
 titleはタイトルであり、descriptionは説明文。commentは煽り文句などの説明スクリプトであり、読み上げに使用するため、ナチュラルな文章のみが入ります。
 
 内容を変更することはなく、構造化だけを行ってください。
+
+title, description, commentの言語は文字起こしの言語に合うようにしてください。(異なっていれば、title, description, commentを翻訳する必要があります。文字起こしは変更してはいけません)
 """

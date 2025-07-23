@@ -17,8 +17,9 @@ class ExtractTopicService:
 
     def extract_topics(self, captions: Captions) -> TopicDataList:
         messages = [
-            Part.from_text(captions.model_dump_json()),
-            self._prompt(),
+            Part.from_text(
+                "```" + captions.model_dump_json() + "\n```\n\n" + self._prompt()
+            ),
         ]
         response = self.vertexai.model.generate_content(
             messages,
@@ -69,6 +70,8 @@ class ExtractTopicService:
         )
         for topic, embedding in zip(topics.root, embeddings):
             topic.embedding = embedding.values
+
+        self.vertexai.notify_response(response, self.vertexai.model)
 
         return topics
 

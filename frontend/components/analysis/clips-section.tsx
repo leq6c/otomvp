@@ -235,7 +235,7 @@ export default function ClipsSection({ conversationId }: ClipsSectionProps) {
   }
 
   // Show loading state
-  if (loading) {
+  if (loading || (conversationJobLoading && (!isPolling || !lastLoadedJob))) {
     return (
       <div className="mb-8">
         <h2 className="text-xl font-semibold text-neutral-800 mb-4">Clips</h2>
@@ -266,7 +266,7 @@ export default function ClipsSection({ conversationId }: ClipsSectionProps) {
             <CardContent className="pt-6">
               <div className="text-center text-neutral-600">
                 <Loader2 className="w-12 h-12 mx-auto mb-4 text-neutral-500 animate-spin" />
-                <p className="mb-4">Generating clips...</p>
+                <p className="mb-4">Generating clips... It usually takes 5-10 minutes.</p>
                 <div className="max-w-md mx-auto">
                   <Progress value={jobProgress} className="mb-2" />
                   {jobProgress < 100 && (

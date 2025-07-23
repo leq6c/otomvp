@@ -88,6 +88,8 @@ class CreateClusterService:
             ),
         )
 
+        self.vertexai.notify_response(response, self.vertexai.model)
+
         return TrendsAndMicroTrends.model_validate_json(response.text)
 
     def _create_cluster_prompt(self, topics: dict[int, list[TopicData]]) -> str:
